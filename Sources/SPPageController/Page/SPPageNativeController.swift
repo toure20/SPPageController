@@ -21,7 +21,13 @@
 
 import UIKit
 
+protocol SPPageNativeControllerOutput: AnyObject {
+    func pageViewControllerDidScroll(_ controller: UIViewController)
+}
+
 class SPPageNativeController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate, SPPageControllerInterface {
+    
+    weak var output: SPPageNativeControllerOutput?
     
     // MARK: - Init
     
@@ -95,6 +101,11 @@ class SPPageNativeController: UIPageViewController, UIPageViewControllerDataSour
         let newIndex = index + 1
         if newIndex > childControllers.count - 1 { return nil }
         return childControllers[newIndex]
+    }
+    
+    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        guard let currentPageController = pageViewController.viewControllers?[0] else { return }
+        output?.pageViewControllerDidScroll(currentPageController)
     }
     
     // MARK: - Internal

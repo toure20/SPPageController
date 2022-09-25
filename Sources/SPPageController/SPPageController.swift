@@ -21,9 +21,15 @@
 
 import UIKit
 
+public protocol SPPageControllerDelegate: AnyObject {
+    func pageViewControllerDidScroll(_ controller: UIViewController)
+}
+
 open class SPPageController: UIViewController, SPPageControllerInterface {
     
     // MARK: - Data
+    
+    weak open var delegate: SPPageControllerDelegate?
     
     /**
      SPPageController: Manage if can be dissmiss by gester.
@@ -57,6 +63,10 @@ open class SPPageController: UIViewController, SPPageControllerInterface {
             containerController = SPPageCollectionController(childControllers: storedChildControllers, scrollDirection: direction)
         }
         super.init(nibName: nil, bundle: nil)
+        
+        if let ctrl = containerController as? SPPageNativeController {
+            ctrl.output = self
+        }
     }
     
     public required init?(coder: NSCoder) {
@@ -93,4 +103,13 @@ open class SPPageController: UIViewController, SPPageControllerInterface {
     
     private var containerController: UIViewController
     private var storedChildControllers: [UIViewController]
+}
+
+// MARK: - SPPageNativeController Output
+
+extension SPPageController: SPPageNativeControllerOutput {
+    
+    func pageViewControllerDidScroll(_ controller: UIViewController) {
+        delegate?.pageViewControllerDidScroll(controller)
+    }
 }
